@@ -1,0 +1,12 @@
+Flask
+Flask-SQLAlchemy
+Flask-Login
+Flask-Bcrypt
+numpy
+Pillow
+opencv-python
+torch
+torchvision
+scikit-learn
+fpdf2
+gunicorn

@@ -1,0 +1,42 @@
+<!-- app/templates/history.html -->
+{% extends "base.html" %}
+{% block title %}Patient History{% endblock %}
+{% block content %}
+<div class="history-container">
+    <h2>Your Curation History</h2>
+    {% if reports %}
+    <table class="history-table">
+        <thead>
+            <tr>
+                <th>Patient Name</th>
+                <th>Date</th>
+                <th>Total Cells</th>
+                <th>AI Agreement Rate</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for report in reports %}
+            <tr>
+                <td>{{ report.patient.name }}</td>
+                <td>{{ report.report_date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ report.total_images }}</td>
+                <td>
+                    {% if report.total_images > 0 %}
+                        {{ "%.2f"|format((report.auto_labeled_count / report.total_images) * 100) }}%
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('download_report', report_id=report.id) }}" class="download-btn-small">Download PDF</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="info-message">You have not curated any patient data yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

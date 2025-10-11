@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Smart Label{% endblock %}
+
+{% block content %}
+<header>
+    <h1> Smart Label: Model-Assited Human-in-the-Loop Labeling </h1>
+    <p>Enter a patient name, select images OR a folder, and review the AI's suggestions to create a fully labeled dataset.</p>
+</header>
+
+<div class="upload-section">
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="text" id="patientName" name="patient_name" placeholder="Enter Patient Name" required>
+        <div class="file-buttons">
+            <label for="files" class="file-label"><span>Select Images</span><input type="file" name="files[]" id="files" multiple accept="image/*"></label>
+            <label for="folder" class="file-label"><span>Select Folder</span><input type="file" name="files[]" id="folder" webkitdirectory directory></label>
+        </div>
+        <button type="submit" id="submitBtn" class="submit-btn">Analyze & Curate</button>
+    </form>
+</div>
+
+<div id="processingSpinner" class="spinner-container" style="display: none;">
+    <div class="spinner"></div>
+    <p>Analyzing images with AI ensemble...</p>
+</div>
+
+<div id="sessionControls" class="session-controls" style="display: none;">
+    <div id="batchActions" class="batch-actions">
+        <input type="checkbox" id="selectAllCheckbox" title="Select All">
+        <select id="batchActionSelect">
+            <option value="">Batch Action...</option>
+            {% for class_name in config.CLASS_LABELS %}
+                <option value="{{ class_name }}">Set selected to {{ class_name|capitalize }}</option>
+            {% endfor %}
+        </select>
+        <button id="applyBatchActionBtn" class="batch-action-btn">Apply</button>
+    </div>
+    <button id="finalizeBtn" class="finalize-btn">Finish & Save Report</button>
+</div>
+
+<div id="resultsContainer" class="results-container"></div>
+<div id="reportContainer" class="report-container"></div>
+
+<script>
+    // Pass server-side config to JavaScript. This must be inside the content block.
+    const config = {
+        CLASS_LABELS: {{ config.CLASS_LABELS|tojson|safe }}
+    };
+</script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

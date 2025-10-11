@@ -1,0 +1,617 @@
+/* ==============================================================================
+           COMPLETE CSS FOR FULL-FEATURED CURATION PLATFORM
+   ============================================================================== */
+
+/* --- Root Variables & Base Styles --- */
+:root {
+    --bg-color: #f8fafc;
+    --card-bg: #ffffff;
+    --text-color: #334155;
+    --heading-color: #1e293b;
+    --primary-color: #4f46e5;
+    --primary-hover: #4338ca;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --light-gray: #e2e8f0;
+    --border-radius: 12px;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    --font-family: 'Inter', sans-serif;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* --- Navbar & Flash Messages --- */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: var(--card-bg);
+    box-shadow: var(--shadow);
+}
+
+.nav-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.nav-user {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.flash-messages {
+    padding: 0 2rem;
+}
+
+.flash {
+    padding: 1rem;
+    margin-top: 1rem;
+    border-radius: 8px;
+    color: #fff;
+    text-align: center;
+}
+
+.flash-success {
+    background-color: var(--success-color);
+}
+
+.flash-danger {
+    background-color: #ef4444;
+}
+
+.flash-info {
+    background-color: #3b82f6;
+}
+
+/* --- Auth Forms (Login/Register) --- */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 4rem;
+}
+
+.auth-form {
+    background: var(--card-bg);
+    padding: 2.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 400px;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.auth-form h2 {
+    text-align: center;
+    margin-top: 0;
+    color: var(--heading-color);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.auth-switch {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #64748b;
+}
+
+.auth-switch a {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* --- Main Curation Page --- */
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+    animation: fadeIn 0.5s ease-out;
+}
+
+header h1 {
+    font-size: 2.5rem;
+}
+
+header p {
+    font-size: 1.1rem;
+    color: #64748b;
+}
+
+.upload-section {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+}
+
+#uploadForm {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+#patientName {
+    padding: 0.75rem;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    font-size: 1rem;
+    min-width: 250px;
+}
+
+.file-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.file-label {
+    background-color: #f8fafc;
+    color: var(--text-color);
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.file-label.selected {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.file-label input[type="file"] {
+    display: none;
+}
+
+.submit-btn {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.submit-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Spinner */
+.spinner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem;
+    color: #64748b;
+    animation: fadeIn 0.3s;
+}
+
+.spinner {
+    border: 4px solid var(--light-gray);
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* --- Session Controls (Batch Actions & Finalize) --- */
+.session-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    animation: fadeIn 0.5s ease-out;
+}
+
+.batch-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+#selectAllCheckbox {
+    width: 20px;
+    height: 20px;
+}
+
+#batchActionSelect {
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--light-gray);
+}
+
+.batch-action-btn {
+    background-color: var(--text-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.finalize-btn {
+    background-color: var(--success-color);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.finalize-btn:hover {
+    background-color: #059669;
+}
+
+.finalize-btn:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* --- Results Grid & Cards --- */
+.results-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    border: 3px solid transparent;
+    animation: fadeIn 0.5s ease-out;
+    transition: all 0.3s ease;
+}
+
+.card-selected {
+    border-color: var(--primary-color);
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.2);
+}
+
+.hitl-card {
+    border-color: var(--warning-color);
+}
+
+.auto-labeled-card {
+    border-color: var(--success-color);
+}
+
+.main-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+}
+
+.card-checkbox {
+    width: 18px;
+    height: 18px;
+}
+
+.card-content {
+    padding: 1rem;
+    border-top: 1px solid var(--light-gray);
+}
+
+.prediction-details ul {
+    list-style: none;
+    margin: 0 0 1rem 0;
+    padding: 0;
+    font-size: 0.9rem;
+}
+
+.prediction-details li {
+    padding: 0.25rem 0;
+}
+
+.prediction-details li.summary {
+    font-weight: 600;
+    color: var(--primary-color);
+    border-top: 1px solid var(--light-gray);
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+}
+
+.prediction-details em {
+    color: #64748b;
+}
+
+.hitl-label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.hitl-select {
+    width: 100%;
+    padding: 0.6rem;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.reason-chip {
+    background-color: #f1f5f9;
+    color: #64748b;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* --- Report Card --- */
+.report-container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.report-card {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    max-width: 600px;
+    margin: 2rem auto;
+}
+
+.report-card h2,
+.report-card h3 {
+    text-align: center;
+    margin-top: 0;
+}
+
+.report-summary {
+    margin-top: 1.5rem;
+}
+
+.report-summary table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.report-summary th,
+.report-summary td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.report-summary th {
+    background-color: #f8fafc;
+}
+
+.report-summary .total-row {
+    font-weight: 700;
+    border-top: 2px solid var(--heading-color);
+}
+
+.download-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 2rem;
+    background-color: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.download-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+/* --- History Page Styles --- */
+.history-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    animation: fadeIn 0.5s ease-out;
+}
+.history-container h2 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 2rem;
+    color: var(--heading-color);
+}
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.history-table th, .history-table td {
+    padding: 0.8rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--light-gray);
+}
+.history-table th {
+    background-color: #f8fafc;
+    font-weight: 600;
+}
+.history-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+.download-btn-small {
+    background-color: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+.download-btn-small:hover {
+    background-color: var(--primary-hover);
+}
+.info-message {
+    text-align: center;
+    color: #64748b;
+    padding: 2rem;
+}
+
+/* ADD THESE STYLES TO YOUR EXISTING style.css FILE */
+
+/* Card Footer for the explanation button */
+.card-footer {
+    padding: 0.75rem 1rem;
+    background-color: #f8fafc;
+    border-top: 1px solid var(--light-gray);
+    text-align: center;
+}
+
+.toggle-explanation-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+.toggle-explanation-btn:disabled {
+    color: #9ca3af;
+    cursor: wait;
+}
+
+/* Container for the explanation, hidden by default */
+.explanation-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+    padding: 0 1rem;
+}
+.explanation-container.visible {
+    max-height: 500px; /* Adjust as needed */
+    padding: 1rem;
+    border-top: 1px solid var(--light-gray);
+}
+
+.hitl-comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    align-items: center;
+}
+
+.model-view {
+    text-align: center;
+}
+
+.cam-image {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 0.5rem;
+}
+.model-prediction { font-size: 0.85rem; }
+.model-prediction span { font-weight: 600; }
+
+/* Styles for the new form layout */
+.form-row { display: flex; gap: 0.5rem; }
+.hitl-submit-btn, .confirm-btn {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.confirm-btn[disabled] {
+    background-color: var(--success-color);
+    cursor: default;
+}
+.hitl-select[disabled] {
+    background-color: #f8fafc;
+}

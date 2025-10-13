@@ -10,3 +10,4 @@ torchvision
 scikit-learn
 fpdf2
 gunicorn
+genai

@@ -75,6 +75,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.results.length > 0) {
                     sessionControls.style.display = 'flex';
                 }
+                // After upload, fetch the live AI summary for the session and display it
+                fetch('/session_summary', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_uuid: currentSessionUUID })
+                })
+                .then(resp => resp.json())
+                .then(summaryData => {
+                    if (summaryData.success) {
+                        displaySummaryModal(summaryData);
+                    }
+                }).catch(err => console.error('Session summary fetch error:', err));
             })
             .catch(error => console.error('Upload Error:', error))
             .finally(() => {
@@ -209,6 +221,17 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
+    function displaySummaryModal(data) {
+        // Reuse reportContainer to show the summary inline under the results
+        const summaryHtml = `
+            <div class="summary-card">
+                <h3>AI Summary (Live)</h3>
+                <pre class="gemini-summary">${data.gemini_summary.replace(/</g, '&lt;')}</pre>
+            </div>
+        `;
+        reportContainer.innerHTML = summaryHtml;
+    }
+
     function handleExplanationToggle(event) {
         const button = event.target;
         const card = button.closest('.card');
@@ -277,8 +300,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         <tr class="total-row"><td><strong>Total Cells</strong></td><td><strong>${totalCount}</strong></td></tr>
                     </tbody>
                 </table>
-                <!-- Use the new report_id for the download link -->
-                <a href="/download_report/${data.report_id}" class="download-btn">Download PDF Report</a>
+                    <!-- Use the new report_id for the download link -->
+                    <a href="/download_report/${data.report_id}" class="download-btn">Download PDF Report</a>
+                    ${data.gemini_summary ? `
+                    <div class="final-gemini-summary">
+                        <h4>AI-generated Summary</h4>
+                        <pre class="gemini-summary">${data.gemini_summary.replace(/</g, '&lt;')}</pre>
+                    </div>
+                    ` : ''}
             </div>
         </div>
     `;

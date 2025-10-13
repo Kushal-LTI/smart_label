@@ -27,5 +27,14 @@ class Config:
     PROCESSED_DATA_DIR = os.path.join(basedir, 'data_processed')
     IMAGE_SIZE = 224
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+    # --- Optional: Gemini / GenAI settings ---
+    # Set GEMINI_API_KEY in your environment to enable production summaries.
+    # GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', None)
+    # Optional model name; agents can override. Keep None to use library defaults.
+    # GEMINI_MODEL = os.environ.get('GEMINI_MODEL', None)
+
+    GEMINI_API_KEY =  "AIzaSyBmX6yWZt9JbuCpKnBsWOjIcDkFSRGIxWw"
+    GEMINI_MODEL = "gemini-2.5-flash"
+
 
 config = Config()

@@ -18,6 +18,65 @@ from config import config
 from models import CurationReport, Patient, db, User
 from grad_cam import GradCAM, get_target_layer
 from fpdf import FPDF
+# Optional genai (Gemini) integration
+try:
+    import genai
+    from genai import Client
+    GENAI_AVAILABLE = True
+except Exception:
+    GENAI_AVAILABLE = False
+
+
+def generate_gemini_summary(final_counts: dict) -> str:
+    """Return a short clinical summary based on final_counts. Uses genai if API key present, otherwise a rule-based fallback."""
+    # Simple rule-based fallback
+    def heuristic_summary(fc: dict) -> str:
+        lines = ["Automated clinical impression based on cell counts:"]
+        total = sum(fc.values())
+        if total == 0:
+            return "No cells processed."
+        most_common = sorted(fc.items(), key=lambda x: x[1], reverse=True)
+        top_type, top_count = most_common[0]
+        pct = (top_count / total) * 100
+        lines.append(f"  - Total cells processed: {total}.")
+        lines.append(f"  - Dominant cell type: {top_type} ({top_count} cells, {pct:.1f}% of sample).")
+        hints = []
+        if top_type.lower() == 'myeloblast' and pct > 20:
+            hints.append('Elevated myeloblasts may indicate acute myeloid leukemia (AML) or a myeloproliferative process; correlate clinically.')
+        if top_type.lower() == 'erythroblast' and pct > 30:
+            hints.append('High erythroblast counts could indicate erythroid hyperplasia or dyserythropoiesis; correlate with CBC and marrow findings.')
+        if top_type.lower() == 'neutrophil' and pct > 60:
+            hints.append('Neutrophil predominance often reflects reactive/infectious processes.')
+        if hints:
+            lines.append('  - Possible interpretations:')
+            for h in hints:
+                lines.append(f"    - {h}")
+        else:
+            lines.append('  - No specific malignancy-suggesting pattern detected by heuristic rules; consider expert review.')
+        return '\n'.join(lines)
+
+    if GENAI_AVAILABLE and config.GEMINI_API_KEY:
+        try:
+            client = Client(api_key=config.GEMINI_API_KEY)
+            model = config.GEMINI_MODEL or None
+            prompt_lines = ["You are a pathology assistant. Given cell counts, provide a concise differential diagnosis (2-3 bullets) and next recommended steps.\n\nCounts:"]
+            for k, v in final_counts.items():
+                prompt_lines.append(f"- {k}: {v}")
+            prompt = '\n'.join(prompt_lines)
+            resp = client.generate(model=model, prompt=prompt)
+            summary_text = ''
+            if hasattr(resp, 'text'):
+                summary_text = resp.text
+            elif hasattr(resp, 'output'):
+                summary_text = str(resp.output)
+            else:
+                summary_text = str(resp)
+            return summary_text
+        except Exception as e:
+            print(f"Gemini generation failed: {e}")
+            return heuristic_summary(final_counts)
+    else:
+        return heuristic_summary(final_counts)
 
 import torch
 import torch.nn as nn
@@ -320,12 +379,105 @@ def finalize_session():
     # Store report_id in session for download link
     session['report_id'] = new_report.id
 
+    # Generate a Gemini summary (uses genai library if available and configured)
+    try:
+        def generate_gemini_summary(final_counts: dict) -> str:
+            """Return a short clinical summary based on final_counts. Uses genai if API key present, otherwise a rule-based fallback."""
+            summary_text = ""
+            # Simple rule-based fallback (will be used if genai isn't available)
+            def heuristic_summary(fc: dict) -> str:
+                lines = ["Automated clinical impression based on cell counts:"]
+                total = sum(fc.values())
+                if total == 0:
+                    return "No cells processed."
+                # normalize
+                most_common = sorted(fc.items(), key=lambda x: x[1], reverse=True)
+                top_type, top_count = most_common[0]
+                pct = (top_count / total) * 100
+                lines.append(f"  - Total cells processed: {total}.")
+                lines.append(f"  - Dominant cell type: {top_type} ({top_count} cells, {pct:.1f}% of sample).")
+                # domain hints (very simplified)
+                hints = []
+                if top_type.lower() == 'myeloblast' and pct > 20:
+                    hints.append('Elevated myeloblasts may indicate acute myeloid leukemia (AML) or a myeloproliferative process; correlate clinically.')
+                if top_type.lower() == 'erythroblast' and pct > 30:
+                    hints.append('High erythroblast counts could indicate erythroid hyperplasia or dyserythropoiesis; correlate with CBC and marrow findings.')
+                if top_type.lower() == 'neutrophil' and pct > 60:
+                    hints.append('Neutrophil predominance often reflects reactive/infectious processes.')
+                if hints:
+                    lines.append('  - Possible interpretations:')
+                    for h in hints:
+                        lines.append(f"    - {h}")
+                else:
+                    lines.append('  - No specific malignancy-suggesting pattern detected by heuristic rules; consider expert review.')
+                return '\n'.join(lines)
+
+            # If genai available and key present, call Gemini
+            if GENAI_AVAILABLE and config.GEMINI_API_KEY:
+                try:
+                    client = Client(api_key=config.GEMINI_API_KEY)
+                    model = config.GEMINI_MODEL or None
+                    prompt_lines = ["You are a pathology assistant. Given cell counts, provide a concise differential diagnosis (2-3 bullets) and next recommended steps.\n\nCounts:"]
+                    for k, v in final_counts.items():
+                        prompt_lines.append(f"- {k}: {v}")
+                    prompt = '\n'.join(prompt_lines)
+                    resp = client.generate(model=model, prompt=prompt)
+                    # genai responses vary; try common attributes
+                    summary_text = ''
+                    if hasattr(resp, 'text'):
+                        summary_text = resp.text
+                    elif hasattr(resp, 'output'):
+                        summary_text = str(resp.output)
+                    else:
+                        summary_text = str(resp)
+                    return summary_text
+                except Exception as e:
+                    print(f"Gemini generation failed: {e}")
+                    return heuristic_summary(final_counts)
+            else:
+                return heuristic_summary(final_counts)
+
+        gemini_summary = generate_gemini_summary(dict(summary_counts))
+    except Exception as e:
+        print(f"Error producing summary: {e}")
+        gemini_summary = "Summary generation failed."
+
+    # Save summary to patient folder for record
+    try:
+        summary_path = os.path.join(patient_folder_path, 'gemini_summary.txt')
+        with open(summary_path, 'w', encoding='utf-8') as f:
+            f.write(gemini_summary)
+    except Exception as e:
+        print(f"Failed to save summary file: {e}")
+
     return jsonify({
         'success': True,
         'patient_name': patient_name,
         'summary': dict(summary_counts),
+        'gemini_summary': gemini_summary,
         'report_id': new_report.id # Send report_id to JS
     })
+
+
+@app.route('/session_summary', methods=['POST'])
+@login_required
+def session_summary():
+    """Return a generated gemini summary for the given session_uuid without finalizing the session."""
+    data = request.get_json()
+    session_uuid = data.get('session_uuid')
+    session = SESSIONS.get(session_uuid)
+    if not session:
+        return jsonify({'success': False, 'message': 'Session expired or not found.'}), 404
+
+    summary_counts = collections.Counter()
+    for temp_filename, image_data in session['images'].items():
+        final_label = image_data.get('current_label')
+        if final_label:
+            summary_counts[final_label] += 1
+
+    gemini_summary = generate_gemini_summary(dict(summary_counts))
+
+    return jsonify({'success': True, 'summary': dict(summary_counts), 'gemini_summary': gemini_summary})
 
 from io import BytesIO
 # --- NEW: Corrected Report Download Route ---
@@ -374,6 +526,35 @@ def download_report(report_id):
     for cell_type, count in final_counts.items():
         pdf.cell(95, 10, cell_type.capitalize(), 1, 0)
         pdf.cell(95, 10, str(count), 1, new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
+
+    # --- Gemini / GenAI Summary (if available) ---
+    try:
+        patient_folder = os.path.join(config.PROCESSED_DATA_DIR, f"{report.patient.id}_{report.patient.name.replace(' ', '_')}")
+        summary_file = os.path.join(patient_folder, 'gemini_summary.txt')
+        if os.path.exists(summary_file):
+            with open(summary_file, 'r', encoding='utf-8') as sf:
+                summary_text = sf.read()
+            pdf.ln(6)
+            pdf.set_font("Helvetica", 'B', 12)
+            # Ensure we start at left margin before writing
+            try:
+                pdf.set_x(pdf.l_margin)
+            except Exception:
+                pass
+            pdf.cell(0, 10, "AI-generated Summary", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.set_font("Helvetica", '', 11)
+            # Wrap lines to avoid exceeding PDF width. Use multi_cell but reset X before each paragraph.
+            for paragraph in summary_text.split('\n\n'):
+                for line in paragraph.split('\n'):
+                    # reset X to left margin to ensure space
+                    try:
+                        pdf.set_x(pdf.l_margin)
+                    except Exception:
+                        pass
+                    pdf.multi_cell(0, 6, line)
+                pdf.ln(2)
+    except Exception as e:
+        print(f"Failed to include gemini summary in PDF: {e}")
 
     # pdf_bytes = pdf.output()
     # pdf_bytes = pdf.output(dest='S')

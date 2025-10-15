@@ -615,3 +615,22 @@ header p {
 .hitl-select[disabled] {
     background-color: #f8fafc;
 }
+
+.final-gemini-summary {
+    margin: 1em 0;
+}
+
+.final-gemini-summary h4 {
+    margin-bottom: 0.5em;
+}
+
+.gemini-summary {
+    white-space: pre-wrap; /* Allows wrapping of preformatted text */
+    word-wrap: break-word; /* Breaks long words if needed */
+    overflow-wrap: break-word; /* Ensures wrapping in modern browsers */
+    font-family: monospace;
+    background-color: #f9f9f9;
+    padding: 1em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
